@@ -9,10 +9,7 @@ import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 private const val IN_APP_MESSAGES = "in_app_messages"
@@ -51,9 +48,13 @@ class MainActivityViewModel @Inject constructor(
     val state: StateFlow<State>
         get() = _state*/
 
-    private val _state: MutableStateFlow<State?> =
+    /*private val _state: MutableStateFlow<State?> =
         savedStateHandle.getStateFlow(IN_APP_MESSAGES, viewModelScope, State.Default)
-    val state: StateFlow<State> = _state as StateFlow<State>
+    val state: StateFlow<State> = _state as StateFlow<State>*/
+
+    private val _state =
+        MutableSharedFlow<State?>(replay = 0)
+    val state: SharedFlow<State?> = _state
 
     init {
         Log.d("debapp", "VM init")
@@ -65,12 +66,12 @@ class MainActivityViewModel @Inject constructor(
             intentChannel.consumeAsFlow().collect {
                 when (it) {
                     Intent.LoadUsersList -> {
-                        _state.value = State.Loading
-                        _state.value = State.ResultUsersList("{name: \"Иван\", age: 25}")
+                        _state.emit(State.Loading)
+                        _state.emit(State.ResultUsersList("{name: \"Иван\", age: 25}"))
                     }
                     Intent.LoadSingleUserInfo -> {
-                        _state.value = State.Loading
-                        _state.value = State.Error(CallErrors.ErrorServer)
+                        _state.emit(State.Loading)
+                        _state.emit(State.Error(CallErrors.ErrorServer))
                     }
                 }
             }

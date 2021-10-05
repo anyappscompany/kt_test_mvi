@@ -67,7 +67,7 @@ fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel){
     }
 }
 
-fun handleState(state: MainActivityViewModel.State){
+fun handleState(state: MainActivityViewModel.State?){
     when(state){
         is MainActivityViewModel.State.Loading->{
             Log.d("debapp", "Loading")
