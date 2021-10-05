@@ -67,15 +67,15 @@ fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel){
     }
 }
 
-fun handleState(state: MainActivityViewModel.Result<Any>){
+fun handleState(state: MainActivityViewModel.State){
     when(state){
-        is MainActivityViewModel.Result.Loading->{
+        is MainActivityViewModel.State.Loading->{
             Log.d("debapp", "Loading")
         }
-        is MainActivityViewModel.Result.Error->{
+        is MainActivityViewModel.State.Error->{
             Log.d("debapp", "Error")
         }
-        is MainActivityViewModel.Result.ResultUsersList->{
+        is MainActivityViewModel.State.ResultUsersList->{
             Log.d("debapp", "Success ${state.data}")
         }
     }
