@@ -39,7 +39,7 @@ class MainActivityViewModel @Inject constructor(
         object Loading : State(), Parcelable
         @Keep
         @Parcelize
-        object Default: State(), Parcelable
+        object Idle: State(), Parcelable
     }
 
     val intentChannel = Channel<Intent>(Channel.UNLIMITED)
