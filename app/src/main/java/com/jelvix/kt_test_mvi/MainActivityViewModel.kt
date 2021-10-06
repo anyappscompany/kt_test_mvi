@@ -12,68 +12,87 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 private const val IN_APP_MESSAGES = "in_app_messages"
+
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    sealed class Intent{
-        object LoadUsersList: Intent()
-        object LoadSingleUserInfo: Intent()
+    interface UiState
+    interface UiEvent
+    interface UiEffect
+
+    sealed class State : UiState {
+        object Idle : State()
+        object Loading : State()
+        data class Error(val exception: CallErrors) : State()
+
+        data class ResultUsersList(val data: String) : State()
+        data class ResultSingleUserList(val data: String) : State()
     }
 
-    @Keep
-    sealed class State(): Parcelable {
-        @Keep
-        @Parcelize
-        data class ResultUsersList(val data: String) : State(), Parcelable
-        @Keep
-        @Parcelize
-        data class ResultSingleUser(val data: String) : State(), Parcelable
-        @Keep
-        @Parcelize
-        data class Error(val exception: CallErrors) : State(), Parcelable
-        @Keep
-        @Parcelize
-        object Loading : State(), Parcelable
-        @Keep
-        @Parcelize
-        object Idle: State(), Parcelable
+    sealed class Event : UiEvent {
+        object OnShowToastClicked : Event()
+        object OnWriteLogClicked : Event()
+        object LoadUsersList : Event()
+        object LoadSingleUserInfo : Event()
     }
 
-    val intentChannel = Channel<Intent>(Channel.UNLIMITED)
+    sealed class Effect : UiEffect {
+        object ShowToast : Effect()
+        object WriteLog : Effect()
+    }
 
-    /*private val _state = MutableStateFlow<State>(State.Default)
-    val state: StateFlow<State>
-        get() = _state*/
+    private val _uiState = MutableStateFlow<UiState>(State.Idle)
+    val uiState: MutableStateFlow<UiState> = _uiState
 
-    /*private val _state: MutableStateFlow<State?> =
-        savedStateHandle.getStateFlow(IN_APP_MESSAGES, viewModelScope, State.Default)
-    val state: StateFlow<State> = _state as StateFlow<State>*/
+    private val _uiEvent = MutableSharedFlow<UiEvent>()
+    val uiEvent: SharedFlow<UiEvent> = _uiEvent
 
-    private val _state =
-        MutableSharedFlow<State?>(replay = 0)
-    val state: SharedFlow<State?> = _state
+    private val _uiEffect = MutableSharedFlow<UiEffect>(replay = 0)
+    val uiEffect: SharedFlow<UiEffect> = _uiEffect
 
     init {
         Log.d("debapp", "VM init")
-        handleIntents()
+        subscribeEvents()
     }
 
-    private fun handleIntents() {
+    fun setState(state: UiState) {
+        val newState = state
+        viewModelScope.launch { _uiState.value = newState }
+    }
+
+    fun setEvent(event: UiEvent) {
+        val newEvent = event
+        viewModelScope.launch { _uiEvent.emit(newEvent) }
+    }
+
+    fun setEffect(effect: UiEffect) {
+        val newEffect = effect
+        viewModelScope.launch { _uiEffect.emit(newEffect) }
+    }
+
+    private fun subscribeEvents() {
         viewModelScope.launch {
-            intentChannel.consumeAsFlow().collect {
-                when (it) {
-                    Intent.LoadUsersList -> {
-                        _state.emit(State.Loading)
-                        _state.emit(State.ResultUsersList("{name: \"Иван\", age: 25}"))
-                    }
-                    Intent.LoadSingleUserInfo -> {
-                        _state.emit(State.Loading)
-                        _state.emit(State.Error(CallErrors.ErrorServer))
-                    }
-                }
+            uiEvent.collect {
+                handleEvent(it)
+            }
+        }
+    }
+
+    private fun handleEvent(uiEvent: UiEvent) {
+        when (uiEvent) {
+            is Event.LoadUsersList -> {
+            }
+            is Event.LoadSingleUserInfo -> {
+            }
+            is Event.OnShowToastClicked -> {
+                setEffect(Effect.ShowToast)
+            }
+            is Event.OnWriteLogClicked -> {
+                setEffect(Effect.WriteLog)
             }
         }
     }
