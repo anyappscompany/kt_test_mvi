@@ -6,14 +6,8 @@ import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.material.Button
-import androidx.compose.material.MaterialTheme
-import androidx.compose.material.Surface
-import androidx.compose.material.Text
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
 import com.jelvix.kt_test_mvi.ui.theme.Kt_test_mviTheme
@@ -40,10 +34,29 @@ class MainActivity : ComponentActivity() {
             mainActivityViewModel.uiEffect.collect {
                 when (it) {
                     is MainActivityViewModel.Effect.WriteLog -> {
-                        Log.d("debapp", "1111")
+                        Log.d("debapp", "Write log 007")
                     }
                     is MainActivityViewModel.Effect.ShowToast -> {
-                        Toast.makeText(applicationContext, "123", Toast.LENGTH_LONG).show()
+                        Toast.makeText(applicationContext, "It is toast", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
+        }
+
+        lifecycleScope.launchWhenStarted {
+            mainActivityViewModel.uiState.collect {
+                when(it){
+                    is MainActivityViewModel.State.Loading->{
+                        Log.d("debapp","Loading")
+                    }
+                    is MainActivityViewModel.State.ResultUsersList->{
+                        Log.d("debapp","Show all users: ${it.data}")
+                    }
+                    is MainActivityViewModel.State.ResultSingleUserList->{
+                        Log.d("debapp","Single user: ${it.data}")
+                    }
+                    is MainActivityViewModel.State.Error->{
+                        Log.d("debapp","Request with error: ${it.exception.toString()}")
                     }
                 }
             }
@@ -65,26 +78,11 @@ class MainActivity : ComponentActivity() {
 fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
     val coroutineScope = rememberCoroutineScope()
     Column(Modifier.fillMaxHeight()) {
-        /*Button(onClick = {
-            coroutineScope.launch {
-                mainActivityViewModel.intentChannel.send(MainActivityViewModel.Intent.LoadUsersList)
-            }
-        }) {
-            Text(text = "LoadUsersList")
-        }
-        Button(onClick = {
-            coroutineScope.launch {
-                mainActivityViewModel.intentChannel.send(MainActivityViewModel.Intent.LoadSingleUserInfo)
-            }
-        }) {
-            Text(text = "LoadSingleUserInfo")
-        }*/
-
         Button(onClick = {
             coroutineScope.launch {
                 mainActivityViewModel.setEvent(MainActivityViewModel.Event.OnWriteLogClicked)
             }
-        }) {
+        }, modifier = Modifier.offset(y=8.dp)) {
             Text(text = "WriteLog")
         }
 
@@ -92,36 +90,26 @@ fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
             coroutineScope.launch {
                 mainActivityViewModel.setEvent(MainActivityViewModel.Event.OnShowToastClicked)
             }
-        }, modifier = Modifier.offset(y=50.dp)) {
+        }, modifier = Modifier.offset(y=16.dp)) {
             Text(text = "Show Toast")
         }
+
+        Divider(Modifier.height(32.dp).offset(y=32.dp))
+
+        Button(onClick = {
+            coroutineScope.launch {
+                mainActivityViewModel.setEvent(MainActivityViewModel.Event.LoadUsersList)
+            }
+        }, modifier = Modifier.offset(y=32.dp)) {
+            Text(text = "Load users")
+        }
+
+        Button(onClick = {
+            coroutineScope.launch {
+                mainActivityViewModel.setEvent(MainActivityViewModel.Event.LoadSingleUserInfo)
+            }
+        }, modifier = Modifier.offset(y=64.dp)) {
+            Text(text = "Show user info")
+        }
     }
 }
-
-/*fun handleState(state: MainActivityViewModel.State?){
-    when(state){
-        is MainActivityViewModel.State.Loading->{
-            Log.d("debapp", "Loading")
-        }
-        is MainActivityViewModel.State.Error->{
-            Log.d("debapp", "Error")
-        }
-        is MainActivityViewModel.State.ResultUsersList->{
-            Log.d("debapp", "Success ${state.data}")
-        }
-    }
-}*/
-
-/*
-@Composable
-fun Greeting(name: String) {
-    Text(text = "Hello $name!")
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    Kt_test_mviTheme {
-        Greeting("Android")
-    }
-}*/

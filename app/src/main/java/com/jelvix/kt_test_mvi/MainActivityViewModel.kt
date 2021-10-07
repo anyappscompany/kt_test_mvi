@@ -85,8 +85,12 @@ class MainActivityViewModel @Inject constructor(
     private fun handleEvent(uiEvent: UiEvent) {
         when (uiEvent) {
             is Event.LoadUsersList -> {
+                setState(State.Loading)
+                setState(State.ResultUsersList("[{\"id\"=\"1ec1c586-2a00-6888-95c1-993ef9e68c82\", \"name\": \"Иван\", \"age\": 25}, {\"id\"=\"1ec11530-b68f-63e6-9544-a5c84e475877\", \"name\": \"Алина\", \"age\": 11}]"))
             }
             is Event.LoadSingleUserInfo -> {
+                setState(State.Loading)
+                setState(State.Error(CallErrors.ErrorServer))
             }
             is Event.OnShowToastClicked -> {
                 setEffect(Effect.ShowToast)
