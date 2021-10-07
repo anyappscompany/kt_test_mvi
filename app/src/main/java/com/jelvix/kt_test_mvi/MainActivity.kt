@@ -8,20 +8,16 @@ import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.tooling.preview.Preview
 import com.jelvix.kt_test_mvi.ui.theme.Kt_test_mviTheme
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.launchIn
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.flow.*
 
 class MainActivity : ComponentActivity() {
 
@@ -29,6 +25,8 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+
 
         lifecycleScope.launchWhenStarted {
             mainActivityViewModel.uiEffect.collect {
@@ -71,11 +69,15 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+
     }
 }
 
 @Composable
 fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
+    val state: MainActivityViewModel.UiState by mainActivityViewModel.uiState.collectAsState()
+
     val coroutineScope = rememberCoroutineScope()
     Column(Modifier.fillMaxHeight()) {
         Button(onClick = {
@@ -94,7 +96,10 @@ fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
             Text(text = "Show Toast")
         }
 
-        Divider(Modifier.height(32.dp).offset(y=32.dp))
+        Divider(
+            Modifier
+                .height(32.dp)
+                .offset(y = 32.dp))
 
         Button(onClick = {
             coroutineScope.launch {
@@ -110,6 +115,18 @@ fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
             }
         }, modifier = Modifier.offset(y=64.dp)) {
             Text(text = "Show user info")
+        }
+
+        val uistate = state
+        when(uistate){
+            is MainActivityViewModel.State.ResultUsersList->{
+                Log.d("debapp","Show all users: ${uistate.data}")
+                Text(text = uistate.data, color = Color.Magenta)
+            }
+            is MainActivityViewModel.State.Error->{
+                //Log.d("debapp","Show all users: ${uistate.data}")
+                Text(text = uistate.exception.toString(), color = Color.Red)
+            }
         }
     }
 }
