@@ -1,14 +1,13 @@
 package com.jelvix.kt_test_mvi
 
-import android.os.Parcelable
 import android.util.Log
-import androidx.annotation.Keep
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.jelvix.kt_test_mvi.interfaces.UiEffect
+import com.jelvix.kt_test_mvi.interfaces.UiEvent
+import com.jelvix.kt_test_mvi.interfaces.UiState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.android.parcel.Parcelize
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -20,17 +19,13 @@ class MainActivityViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    interface UiState
-    interface UiEvent
-    interface UiEffect
-
     sealed class State : UiState {
         object Idle : State()
         object Loading : State()
         data class Error(val exception: CallErrors) : State()
 
-        data class ResultUsersList(val data: String) : State()
-        data class ResultSingleUserList(val data: String) : State()
+        data class SuccessUsersList(val data: String) : State()
+        data class SuccessSingleUserList(val data: String) : State()
     }
 
     sealed class Event : UiEvent {
@@ -47,7 +42,6 @@ class MainActivityViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow<UiState>(State.Idle)
     val uiState: MutableStateFlow<UiState> = _uiState
-
 
     private val _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent
@@ -87,7 +81,7 @@ class MainActivityViewModel @Inject constructor(
         when (uiEvent) {
             is Event.LoadUsersList -> {
                 setState(State.Loading)
-                setState(State.ResultUsersList("[{\"id\"=\"1ec1c586-2a00-6888-95c1-993ef9e68c82\", \"name\": \"Иван\", \"age\": 25}, {\"id\"=\"1ec11530-b68f-63e6-9544-a5c84e475877\", \"name\": \"Алина\", \"age\": 11}]"))
+                setState(State.SuccessUsersList("[{\"id\"=\"1ec1c586-2a00-6888-95c1-993ef9e68c82\", \"name\": \"Иван\", \"age\": 25}, {\"id\"=\"1ec11530-b68f-63e6-9544-a5c84e475877\", \"name\": \"Алина\", \"age\": 11}]"))
             }
             is Event.LoadSingleUserInfo -> {
                 setState(State.Loading)

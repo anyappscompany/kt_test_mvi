@@ -9,19 +9,20 @@ import androidx.activity.viewModels
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.ui.tooling.preview.Preview
 import com.jelvix.kt_test_mvi.ui.theme.Kt_test_mviTheme
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.lifecycleScope
+import com.jelvix.kt_test_mvi.interfaces.UiState
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.*
 
 class MainActivity : ComponentActivity() {
 
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
+    // val textFieldState = remember { mutableStateOf(TextFieldValue()) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -47,10 +48,10 @@ class MainActivity : ComponentActivity() {
                     is MainActivityViewModel.State.Loading->{
                         Log.d("debapp","Loading")
                     }
-                    is MainActivityViewModel.State.ResultUsersList->{
+                    is MainActivityViewModel.State.SuccessUsersList->{
                         Log.d("debapp","Show all users: ${it.data}")
                     }
-                    is MainActivityViewModel.State.ResultSingleUserList->{
+                    is MainActivityViewModel.State.SuccessSingleUserList->{
                         Log.d("debapp","Single user: ${it.data}")
                     }
                     is MainActivityViewModel.State.Error->{
@@ -76,7 +77,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
-    val state: MainActivityViewModel.UiState by mainActivityViewModel.uiState.collectAsState()
+    val state: UiState by mainActivityViewModel.uiState.collectAsState()
 
     val coroutineScope = rememberCoroutineScope()
     Column(Modifier.fillMaxHeight()) {
@@ -119,7 +120,7 @@ fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
 
         val uistate = state
         when(uistate){
-            is MainActivityViewModel.State.ResultUsersList->{
+            is MainActivityViewModel.State.SuccessUsersList->{
                 Log.d("debapp","Show all users: ${uistate.data}")
                 Text(text = uistate.data, color = Color.Magenta)
             }
