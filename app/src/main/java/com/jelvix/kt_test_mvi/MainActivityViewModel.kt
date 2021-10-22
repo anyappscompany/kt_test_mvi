@@ -41,7 +41,7 @@ class MainActivityViewModel @Inject constructor(
     }
 
     private val _uiState = MutableStateFlow<UiState>(State.Idle)
-    val uiState: MutableStateFlow<UiState> = _uiState
+    val uiState: StateFlow<UiState> = _uiState
 
     private val _uiEvent = MutableSharedFlow<UiEvent>()
     val uiEvent: SharedFlow<UiEvent> = _uiEvent

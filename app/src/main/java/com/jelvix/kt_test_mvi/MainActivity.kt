@@ -44,18 +44,18 @@ class MainActivity : ComponentActivity() {
 
         lifecycleScope.launchWhenStarted {
             mainActivityViewModel.uiState.collect {
-                when(it){
-                    is MainActivityViewModel.State.Loading->{
-                        Log.d("debapp","Loading")
+                when (it) {
+                    is MainActivityViewModel.State.Loading -> {
+                        Log.d("debapp", "Loading")
                     }
-                    is MainActivityViewModel.State.SuccessUsersList->{
-                        Log.d("debapp","Show all users: ${it.data}")
+                    is MainActivityViewModel.State.SuccessUsersList -> {
+                        Log.d("debapp", "Show all users: ${it.data}")
                     }
-                    is MainActivityViewModel.State.SuccessSingleUserList->{
-                        Log.d("debapp","Single user: ${it.data}")
+                    is MainActivityViewModel.State.SuccessSingleUserList -> {
+                        Log.d("debapp", "Single user: ${it.data}")
                     }
-                    is MainActivityViewModel.State.Error->{
-                        Log.d("debapp","Request with error: ${it.exception.toString()}")
+                    is MainActivityViewModel.State.Error -> {
+                        Log.d("debapp", "Request with error: ${it.exception.toString()}")
                     }
                 }
             }
@@ -78,56 +78,60 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MainActivityScreen(mainActivityViewModel: MainActivityViewModel) {
     val state: UiState by mainActivityViewModel.uiState.collectAsState()
-
     val coroutineScope = rememberCoroutineScope()
-    Column(Modifier.fillMaxHeight()) {
-        Button(onClick = {
-            coroutineScope.launch {
-                mainActivityViewModel.setEvent(MainActivityViewModel.Event.OnWriteLogClicked)
-            }
-        }, modifier = Modifier.offset(y=8.dp)) {
-            Text(text = "WriteLog")
-        }
 
-        Button(onClick = {
-            coroutineScope.launch {
-                mainActivityViewModel.setEvent(MainActivityViewModel.Event.OnShowToastClicked)
-            }
-        }, modifier = Modifier.offset(y=16.dp)) {
-            Text(text = "Show Toast")
-        }
+    Scaffold(content = {
 
-        Divider(
-            Modifier
-                .height(32.dp)
-                .offset(y = 32.dp))
+        Column(Modifier.fillMaxHeight()) {
+            Button(onClick = {
+                coroutineScope.launch {
+                    mainActivityViewModel.setEvent(MainActivityViewModel.Event.OnWriteLogClicked)
+                }
+            }, modifier = Modifier.offset(y = 8.dp)) {
+                Text(text = "WriteLog")
+            }
 
-        Button(onClick = {
-            coroutineScope.launch {
-                mainActivityViewModel.setEvent(MainActivityViewModel.Event.LoadUsersList)
+            Button(onClick = {
+                coroutineScope.launch {
+                    mainActivityViewModel.setEvent(MainActivityViewModel.Event.OnShowToastClicked)
+                }
+            }, modifier = Modifier.offset(y = 16.dp)) {
+                Text(text = "Show Toast")
             }
-        }, modifier = Modifier.offset(y=32.dp)) {
-            Text(text = "Load users")
-        }
 
-        Button(onClick = {
-            coroutineScope.launch {
-                mainActivityViewModel.setEvent(MainActivityViewModel.Event.LoadSingleUserInfo)
-            }
-        }, modifier = Modifier.offset(y=64.dp)) {
-            Text(text = "Show user info")
-        }
+            Divider(
+                Modifier
+                    .height(32.dp)
+                    .offset(y = 32.dp)
+            )
 
-        val uistate = state
-        when(uistate){
-            is MainActivityViewModel.State.SuccessUsersList->{
-                Log.d("debapp","Show all users: ${uistate.data}")
-                Text(text = uistate.data, color = Color.Magenta)
+            Button(onClick = {
+                coroutineScope.launch {
+                    mainActivityViewModel.setEvent(MainActivityViewModel.Event.LoadUsersList)
+                }
+            }, modifier = Modifier.offset(y = 32.dp)) {
+                Text(text = "Load users")
             }
-            is MainActivityViewModel.State.Error->{
-                //Log.d("debapp","Show all users: ${uistate.data}")
-                Text(text = uistate.exception.toString(), color = Color.Red)
+
+            Button(onClick = {
+                coroutineScope.launch {
+                    mainActivityViewModel.setEvent(MainActivityViewModel.Event.LoadSingleUserInfo)
+                }
+            }, modifier = Modifier.offset(y = 64.dp)) {
+                Text(text = "Show user info")
+            }
+
+            val uistate = state
+            when (uistate) {
+                is MainActivityViewModel.State.SuccessUsersList -> {
+                    Log.d("debapp", "Show all users: ${uistate.data}")
+                    Text(text = uistate.data, color = Color.Magenta)
+                }
+                is MainActivityViewModel.State.Error -> {
+                    //Log.d("debapp","Show all users: ${uistate.data}")
+                    Text(text = uistate.exception.toString(), color = Color.Red)
+                }
             }
         }
-    }
+    })
 }
